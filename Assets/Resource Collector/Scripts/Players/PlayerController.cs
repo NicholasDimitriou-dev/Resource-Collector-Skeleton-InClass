@@ -32,13 +32,21 @@ public class PlayerController : NetworkBehaviour
         if (!IsOwner) return;
 
         // TODO Slice 2.2: read this owner's movement in Update.
+        Vector2 input = ReadMovementInput();
         
         // TODO Slice 2.5: smooth _smoothedInput toward the raw input so the walk cycle does not pop.
-        
+        _smoothedInput = Vector2.MoveTowards(_smoothedInput, input, Time.deltaTime * 10f);
         // TODO Slice 2.3: rotate and move forward/back.
+        float rotation = _smoothedInput.x * _rotationSpeed * Time.deltaTime;
+        transform.Rotate(0f, rotation, 0f);
 
-        // TODO Slice 2.4: set the "Speed" animator float so walk speed matches input.
+        Vector3 direction = transform.forward;
+        _characterController.Move(_smoothedInput.y* direction * _movementSpeed * Time.deltaTime);
         
+        
+        // TODO Slice 2.4: set the "Speed" animator float so walk speed matches input.
+        _animator.SetFloat("Speed", _characterController.velocity.magnitude);
+
         // TODO Slice 6.2: detect a target and request interaction on E or left-click.
     }
 
@@ -47,6 +55,7 @@ public class PlayerController : NetworkBehaviour
         base.OnNetworkSpawn();
 
         // TODO Slice 2.6: make the main camera follow only its local player. </> end of Slice 2
+        FindAnyObjectByType<FollowCamera>().Target = transform;
     }
 
     public override void OnNetworkDespawn()
@@ -72,7 +81,27 @@ public class PlayerController : NetworkBehaviour
     static Vector2 ReadMovementInput()
     {
         // TODO Slice 2.1: return WASD input as a two-dimensional vector.
-        return new Vector2();
+        Vector2 input = Vector2.zero;
+        if (Keyboard.current.dKey.isPressed)
+        {
+            input.x += 1f;
+        }
+
+        if (Keyboard.current.aKey.isPressed)
+        {
+            input.x -= 1f;
+        }
+
+        if (Keyboard.current.wKey.isPressed)
+        {
+            input.y += 1f;
+        }
+
+        if (Keyboard.current.sKey.isPressed)
+        {
+            input.y -= 1f;
+        }
+        return input;
     }
 
     void UpdateInteractionTarget()

@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 /*
@@ -8,24 +9,24 @@ using UnityEngine;
 
 public class Highlightable : MonoBehaviour
 {
-    static readonly int SelectionEnabledId = Shader.PropertyToID("_Selection_Enabled");
 
     Renderer[] _targetRenderers;
 
     void Awake()
     {
         // TODO Slice 3.1: cache every child renderer and begin unselected.
+        _targetRenderers = GetComponentsInChildren<Renderer>();
+        //SetHighlighted(false);
     }
 
     public void SetHighlighted(bool isHighlighted)
     {
+        Debug.Log("hello");
         // TODO Slice 3.3: forward the requested state to ApplyHighlight. </> end of Slice 3
+        foreach (var renderer in _targetRenderers)
+        {
+            renderer.material.SetFloat("_Highlight_Enabbled", 1f);
+        }
     }
-
-    public void SetSelected(bool isSelected) => SetHighlighted(isSelected);
-
-    void ApplyHighlight(bool isHighlighted)
-    {
-        // TODO Slice 3.2: set _Selection_Enabled on each material that supports it.
-    }
+    
 }

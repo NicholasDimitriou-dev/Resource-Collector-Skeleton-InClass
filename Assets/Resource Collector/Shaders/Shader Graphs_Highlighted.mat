@@ -43,7 +43,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Highlight_Enabbled: 1
-    - _Highlight_Power: 0.58
+    - _Highlight_Power: -0.18
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Rim_Power: 1

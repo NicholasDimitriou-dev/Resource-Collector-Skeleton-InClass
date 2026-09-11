@@ -30,10 +30,16 @@ public class ItemPickup : Interactable
 
     protected override void Interact(PlayerHeldItem heldItem)
     {
+        heldItem.SpawnHeldItemAsNewPickup(transform.position);
         // TODO Slice 6.5: put this item's type in the player's hand, then Despawn.
         //   Destroy catalog drops; keep scene pickups: Despawn(destroy: NetworkObject.InScenePlaced != true).
         // Next: Slice 6.6 in PlayerHeldItem.SetHeldItem.
-        // TODO Slice 7.2: SpawnHeldItemAsNewPickup first so a swap returns the old type.
+        heldItem.SetHeldItem(_objectType);
+        
+        NetworkObject.Despawn(false);
+        
+        // // TODO Slice 7.2: SpawnHeldItemAsNewPickup first so a swap returns the old type.
+        // SpawnHeldItemAsNewPickup()
         // Next: Slice 7.3 in PlayerHeldItem.OnNetworkPreDespawn.
     }
 }

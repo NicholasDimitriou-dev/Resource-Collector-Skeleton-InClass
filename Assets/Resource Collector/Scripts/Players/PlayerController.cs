@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using Unity.Netcode;
 using Unity.VisualScripting;
@@ -50,7 +51,13 @@ public class PlayerController : NetworkBehaviour
         // TODO Slice 2.4: set the "Speed" animator float so walk speed matches input.
         _animator.SetFloat("Speed", _characterController.velocity.magnitude);
         UpdateInteractionTarget();
-        // TODO Slice 6.2: detect a target and request interaction on E or left-click.
+        
+        
+        // TODO Slice 6.1: detect a target and request interaction on E or left-click.
+        if (Keyboard.current.wKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            HandleInteractionPressed();
+        }
     }
     
     public override void OnNetworkSpawn()
@@ -67,6 +74,7 @@ public class PlayerController : NetworkBehaviour
         {
             // TODO Slice 5.2: turn off the current target's Highlightable,
             // then clear _closestTarget.
+            ClearSelection();
         }
 
         base.OnNetworkDespawn();
@@ -76,9 +84,12 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        // TODO Slice 6.1: if there is no target, return. Otherwise fire the
+        // TODO Slice 6.2: if there is no target, return. Otherwise fire the
         // Animator's "Interact" trigger and send the target's NetworkObjectId
         // to the server.
+        if (_closestTarget == null)return;
+        _animator.SetTrigger("Interact");
+        RequestInteractRpc(_closestTarget.NetworkObjectId);
     }
 
     static Vector2 ReadMovementInput()
@@ -121,8 +132,7 @@ public class PlayerController : NetworkBehaviour
         // 4. Otherwise, remove the old highlight, store the new candidate, and
         //    highlight it (if there is one).
         Interactable interactable = FindClosestValidInteractable();
-        Debug.Log("test");
-        Debug.Log("test");
+        
         if (interactable == _closestTarget) return;
         ClearSelection();
         
@@ -154,7 +164,7 @@ public class PlayerController : NetworkBehaviour
                 closestInteractable = interactable;
                 closestDistance = distanceSquare;
             }
-            Debug.Log("Goodbye");
+            //Debug.Log("Goodbye");
         }
         return closestInteractable;
     }
@@ -171,6 +181,23 @@ public class PlayerController : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void RequestInteractRpc(ulong networkObjectId)
     {
+        Debug.Log("RequestInteractRpc");
+        Dictionary<ulong, NetworkObject> spawnedObjectMap = NetworkManager.SpawnManager.SpawnedObjects;
+        if(!spawnedObjectMap.TryGetValue(networkObjectId, out NetworkObject spawnedObject))
+        {
+            Debug.LogError("Couldn't find spawned object");
+            return;
+        }
+        if (!spawnedObject.TryGetComponent(out Interactable interactable))
+        {
+            Debug.LogError("Doesnt have interactable");
+        }
+
+        if (interactable.CanInteract(_heldItem.ObjectType))
+        {
+            interactable.ServerInteract(_heldItem);
+        }
+        
         // TODO Slice 6.3: resolve the NetworkObject id and invoke its server gateway.
         // The target may have despawned after the owner selected it.
         // Next: Slice 6.4 in Interactable.ServerInteract.

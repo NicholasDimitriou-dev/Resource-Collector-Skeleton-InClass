@@ -16,16 +16,15 @@ public class Highlightable : MonoBehaviour
     {
         // TODO Slice 3.1: cache every child renderer and begin unselected.
         _targetRenderers = GetComponentsInChildren<Renderer>();
-        //SetHighlighted(false);
+        SetHighlighted(false);
     }
 
     public void SetHighlighted(bool isHighlighted)
     {
-        Debug.Log("hello");
         // TODO Slice 3.3: forward the requested state to ApplyHighlight. </> end of Slice 3
         foreach (var renderer in _targetRenderers)
         {
-            renderer.material.SetFloat("_Highlight_Enabbled", 1f);
+            renderer.material.SetFloat("_Highlight_Enabbled", isHighlighted? 1f : 0f);
         }
     }
     

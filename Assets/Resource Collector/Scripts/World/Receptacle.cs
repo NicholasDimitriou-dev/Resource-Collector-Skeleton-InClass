@@ -26,11 +26,9 @@ public class Receptacle : Interactable
         if (IsServer)
         {
             _stackedCount.Value = 0;
-            
+            _stackedCount.OnValueChanged += HandleStackedCountChanged;
+            HandleStackedCountChanged(_stackedCount.Value, _stackedCount.Value);
         }
-        _stackedCount.OnValueChanged += HandleStackedCountChanged;
-        HandleStackedCountChanged(_stackedCount.Value,_stackedCount.Value);
-       
     }
 
     public override void OnNetworkDespawn()
@@ -43,25 +41,31 @@ public class Receptacle : Interactable
     public override bool CanInteract(ObjectType heldType)
     {
         // TODO Slice 9.5: accept only the configured resource while space remains.
-        return heldType.Equals(_acceptedObjectType);
+        if (heldType == _acceptedObjectType)
+        {
+            return true;
+        }
+        return false;
     }
 
     protected override void Interact(PlayerHeldItem heldItem)
     {
-        if (!CanInteract(heldItem.ObjectType)) return;
         // TODO Slice 9.6: add one resource and clear the player's hand. </> end of Slice 9
-        heldItem.Clear();
-        //_stackedCount.Value++;
+        if (CanInteract(heldItem.ObjectType))
+        {
+            HandleStackedCountChanged(_stackedCount.Value, _stackedCount.Value + 1);
+            heldItem.Clear();
+            _stackedCount.Value++;
+        }
     }
 
     void HandleStackedCountChanged(int previousValue, int newValue)
     {
         // TODO Slice 9.3: always apply newValue to the visuals. Play audio only
-        // when the stack grows
-        if (previousValue >= newValue && _stackedCount.Value >= previousValue)
+        // when the stack grows.
+        if (previousValue >= newValue || _stackedCount.Value >= previousValue)
         {
-            _stackedCount.Value = newValue;
-            ApplyStackedCount(_stackedCount.Value);
+            ApplyStackedCount(newValue);
         }
     }
 
@@ -70,7 +74,7 @@ public class Receptacle : Interactable
         // TODO Slice 9.2: show exactly the first count visuals.
         for (int i = 0; i < count; i++)
         {
-          _stackedResourceVisuals[i].gameObject.SetActive(true);   
+            _stackedResourceVisuals[i].gameObject.SetActive(true);
         }
     }
 }

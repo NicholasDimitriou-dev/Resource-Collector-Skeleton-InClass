@@ -60,7 +60,7 @@ public class ResourceNode : Interactable
         // </> end of Slice 8
         HitFeedbackRpc();
         HandleHealthChanged(_health.Value, _health.Value-1);
-        _health.Value--;
+        //_health.Value--;
         if (_health.Value == 0)
         {
             for(int i = 0; i< _amountToSpawn; i++)

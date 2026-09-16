@@ -36,7 +36,7 @@ public class ItemPickup : Interactable
         // Next: Slice 6.6 in PlayerHeldItem.SetHeldItem.
         heldItem.SetHeldItem(_objectType);
         
-        NetworkObject.Despawn(false);
+        NetworkObject.Despawn(!NetworkObject.InScenePlaced);
         
         // // TODO Slice 7.2: SpawnHeldItemAsNewPickup first so a swap returns the old type.
         // SpawnHeldItemAsNewPickup()

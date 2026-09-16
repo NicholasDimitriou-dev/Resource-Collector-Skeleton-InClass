@@ -54,7 +54,7 @@ public class PlayerController : NetworkBehaviour
         
         
         // TODO Slice 6.1: detect a target and request interaction on E or left-click.
-        if (Keyboard.current.wKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
+        if (Keyboard.current.eKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
         {
             HandleInteractionPressed();
         }
